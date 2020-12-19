@@ -1,0 +1,289 @@
+<!DOCTYPE HTML>
+ 
+<html>
+	<head>
+		<title>Wesbite Analytics</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="subpage" data-new-gr-c-s-check-loaded="14.984.0" data-gr-ext-installed="">
+	
+	
+	    <script type="text/javascript" async="" src="./solution_files/js"></script><script async="" src="./solution_files/analytics.js.download"></script><script async="" src="./solution_files/gtm.js.download"></script><script async="" src="./solution_files/analytics.js(1).download"></script><script async="" src="./solution_files/gtm.js(1).download"></script><script async="" src="./solution_files/analytics.js(2).download"></script>
+    <script async="" src="./solution_files/gtm.js(2).download"></script>
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-MQSGZS');</script>
+    <!-- End Google Tag Manager -->
+	<script async="" src="./Line Chart_files/analytics.js.download"></script><script src="./Line Chart_files/moment.min.js.download"></script>
+	<script src="./Line Chart_files/Chart.min.js.download"></script>
+	<script src="./Line Chart_files/utils.js.download"></script>
+    <script type="text/javascript" src="./solution_files/loader.js.download"></script>
+  
+    <script type="text/javascript" charset="UTF-8" src="./solution_files/loader.js(1).download"></script>
+	<script type="text/javascript" charset="UTF-8" src="./solution_files/loader.js(2).download"></script>
+
+    <script async="" src="./solution_files/analytics.js(3).download"></script>
+    <script src="./solution_files/Chart.min.js.download"></script>
+    <script src="./solution_files/utils.js.download"></script>
+ 
+
+
+
+	
+
+		<!-- Header -->
+			<header id="header">
+				<div class="inner">
+					<a href="index.html" class="logo"><strong>Web-App by BDAT students Ankur, Sangeetha and Sucheta</strong></a>
+					<nav id="nav">
+						<a href="index.html">Home</a>
+						<a href="generic.html">Available Tools</a>
+						<a href="elements.html">Why Visualization?</a>
+					</nav>
+					<a href="#navPanel" class="navPanelToggle"><span class="fa fa-bars"></span></a>
+				</div>
+			</header>
+
+
+		<!-- Three -->
+			<section id="three" class="wrapper">
+				<div class="inner">
+					<header class="align-center">
+						<h2>Insights we provide</h2>
+						<p>The Insights we provide all capture data in real-time. The data used below is demo data from the Govenment of USA's open data portal.</p>
+					</header>
+				</div>
+				<div>
+			
+				<section id="realtime" data-block="realtime" data-source="https://analytics.usa.gov/data/live/realtime.json" data-refresh="15" class="align-center loaded">					
+					<h1 id="current_visitors" class="data">534,501</h1>Active Sessions
+					</section>
+				</div>
+				
+				<div style="width:1000px"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+		<canvas id="chart1" width="1500" height="450" class="chartjs-render-monitor" style="display: block; height: 300px; width: 1000px;"></canvas>
+	</div>
+	<br>
+	<br>
+	Chart Type:
+	<select id="type">
+		<option value="line">Line</option>
+		<option value="bar">Bar</option>
+	</select>
+	<select id="unit">
+		<option value="second">Second</option>
+		<option value="minute">Minute</option>
+		<option value="hour" selected="">Hour</option>
+		<option value="day">Day</option>
+		<option value="month">Month</option>
+		<option value="year">Year</option>
+	</select>
+	<button id="update">update</button>
+	<script>
+		function generateData() {
+			var unit = document.getElementById('unit').value;
+
+			function unitLessThanDay() {
+				return unit === 'second' || unit === 'minute' || unit === 'hour';
+			}
+
+			function beforeNineThirty(date) {
+				return date.hour() < 9 || (date.hour() === 9 && date.minute() < 30);
+			}
+
+			// Returns true if outside 9:30am-4pm on a weekday
+			function outsideMarketHours(date) {
+				if (date.isoWeekday() > 5) {
+					return true;
+				}
+				if (unitLessThanDay() && (beforeNineThirty(date) || date.hour() > 16)) {
+					return true;
+				}
+				return false;
+			}
+
+			function randomNumber(min, max) {
+				return Math.random() * (max - min) + min;
+			}
+
+			function randomBar(date, lastClose) {
+				var open = randomNumber(lastClose * 0.95, lastClose * 1.05).toFixed(2);
+				var close = randomNumber(open * 0.95, open * 1.05).toFixed(2);
+				return {
+					t: date.valueOf(),
+					y: close
+				};
+			}
+
+			var date = moment('Dec 14 2020', 'MMM DD YYYY');
+			var now = moment();
+			var data = [];
+			var lessThanDay = unitLessThanDay();
+			for (; data.length < 600 && date.isBefore(now); date = date.clone().add(1, unit).startOf(unit)) {
+				if (outsideMarketHours(date)) {
+					if (!lessThanDay || !beforeNineThirty(date)) {
+						date = date.clone().add(date.isoWeekday() >= 5 ? 8 - date.isoWeekday() : 1, 'day');
+					}
+					if (lessThanDay) {
+						date = date.hour(9).minute(30).second(0);
+					}
+				}
+				data.push(randomBar(date, data.length > 0 ? data[data.length - 1].y : 30));
+			}
+
+			return data;
+		}
+
+		var ctx = document.getElementById('chart1').getContext('2d');
+		ctx.canvas.width = 1000;
+		ctx.canvas.height = 300;
+
+		var color = Chart.helpers.color;
+		var cfg = {
+			data: {
+				datasets: [{
+					label: 'Active Sessions',
+					backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
+					borderColor: window.chartColors.red,
+					data: generateData(),
+					type: 'line',
+					pointRadius: 0,
+					fill: false,
+					lineTension: 0,
+					borderWidth: 2
+				}]
+			},
+			options: {
+				animation: {
+					duration: 0
+				},
+				scales: {
+					xAxes: [{
+						type: 'time',
+						distribution: 'series',
+						offset: true,
+						ticks: {
+							major: {
+								enabled: true,
+								fontStyle: 'bold'
+							},
+							source: 'data',
+							autoSkip: true,
+							autoSkipPadding: 75,
+							maxRotation: 0,
+							sampleSize: 100
+						},
+						afterBuildTicks: function(scale, ticks) {
+							var majorUnit = scale._majorUnit;
+							var firstTick = ticks[0];
+							var i, ilen, val, tick, currMajor, lastMajor;
+
+							val = moment(ticks[0].value);
+							if ((majorUnit === 'minute' && val.second() === 0)
+									|| (majorUnit === 'hour' && val.minute() === 0)
+									|| (majorUnit === 'day' && val.hour() === 9)
+									|| (majorUnit === 'month' && val.date() <= 3 && val.isoWeekday() === 1)
+									|| (majorUnit === 'year' && val.month() === 0)) {
+								firstTick.major = true;
+							} else {
+								firstTick.major = false;
+							}
+							lastMajor = val.get(majorUnit);
+
+							for (i = 1, ilen = ticks.length; i < ilen; i++) {
+								tick = ticks[i];
+								val = moment(tick.value);
+								currMajor = val.get(majorUnit);
+								tick.major = currMajor !== lastMajor;
+								lastMajor = currMajor;
+							}
+							return ticks;
+						}
+					}],
+					yAxes: [{
+						gridLines: {
+							drawBorder: false
+						},
+						scaleLabel: {
+							display: true,
+							labelString: 'Number of Users'
+						}
+					}]
+				},
+				tooltips: {
+					intersect: false,
+					mode: 'index',
+					callbacks: {
+						label: function(tooltipItem, myData) {
+							var label = myData.datasets[tooltipItem.datasetIndex].label || '';
+							if (label) {
+								label += ': ';
+							}
+							label += parseFloat(tooltipItem.value).toFixed(2);
+							return label;
+						}
+					}
+				}
+			}
+		};
+
+		var chart = new Chart(ctx, cfg);
+
+		document.getElementById('update').addEventListener('click', function() {
+			var type = document.getElementById('type').value;
+			var dataset = chart.config.data.datasets[0];
+			dataset.type = type;
+			dataset.data = generateData();
+			chart.update();
+		});
+
+	</script>
+<br>The chart demonstrates real-time insights of the active users accessing the website.
+
+				</div>
+			</section>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+					<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+			
+			 <!-- Scripts -->
+    <script type="text/javascript">
+        window._ie10 = ("onpropertychange" in document && !!window.matchMedia);
+        window._ie11 = !!navigator.userAgent.match(/Trident\/7.0; rv 11/);
+        window._ie = window._ie9 || window._ie10 || window._ie11;
+    </script><script type="text/javascript" id="_fed_an_ua_tag" src="./solution_files/Universal-v4.1-test.js.download"></script>
+
+    <script type="text/javascript">window._ie9 = false;</script>
+    <script src="./solution_files/jquery.min.js.download"></script>
+    <script src="./solution_files/jquery.scrollex.min.js.download"></script>
+    <script src="./solution_files/skel.min.js.download"></script>
+    <script src="./solution_files/util.js.download"></script>
+    <script src="./solution_files/main.js.download"></script>
+    <script src="./solution_files/d3.v5.js.download"></script>
+    <script src="./solution_files/d3.js.download"></script>
+    <script src="file:///C:/Users/12499/Desktop/Temporary/XYZ%20Company,%20Analytics%20solution_files/d3min.js.download"></script>
+    <script src="./solution_files/bundle.js.download"></script>
+    <script type="text/javascript" id="_fed_an_ua_tag" src="./solution_files/Universal-v4.1-test.js(1).download"></script>
+
+
+
+
+
+	</body>
+</html>
